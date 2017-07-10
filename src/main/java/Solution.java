@@ -37,7 +37,7 @@ public class Solution {
                     + FileSplitter.LINE_SEPARATOR
                     + "test10.png, Odessa, 2015-09-05 13:20:39"
                     + FileSplitter.LINE_SEPARATOR
-                    + "test11.jpg, Lviv, 2015-10-05 14:20:30"
+                    + "test11.jpeg, Lviv, 2015-10-05 14:20:30"
                     + FileSplitter.LINE_SEPARATOR
                     + "test12.png, Odessa, 2015-09-05 13:20:40"
                     + FileSplitter.LINE_SEPARATOR
@@ -53,8 +53,10 @@ interface Converter<F, T> {
 }
 
 class StringPhotoConverter implements Converter<String, String> {
+    private static final String NAME_TEMPLATE = "%s%s.%s";
     private static final Splitter PHOTO_SPLITTER = new FileSplitter();
     private static final Splitter PHOTO_DETAILS_SPLITTER = new PhotoSplitter();
+
     private static final Converter<String[], Photo> TO_PHOTO_CONVERTER = new ArrayToPhotoConverter();
 
     @Override
@@ -67,7 +69,11 @@ class StringPhotoConverter implements Converter<String, String> {
         updateNumber(photos);
 
         final StringBuilder convertedString = new StringBuilder();
-        photos.forEach(item->convertedString.append(item).append(FileSplitter.LINE_SEPARATOR));
+        photos.forEach(item -> convertedString.append(String.format(NAME_TEMPLATE,
+                item.getCity(),
+                item.getNumber(),
+                item.getExtension().getValue()))
+                .append(FileSplitter.LINE_SEPARATOR));
         return convertedString.toString();
     }
 
@@ -105,6 +111,7 @@ class ArrayToPhotoConverter implements Converter<String[], Photo> {
 
     private static final Converter<String, LocalDateTime> DATE_TIME_CONVERTER = new Converter<String, LocalDateTime>() {
         private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
         @Override
         public LocalDateTime convert(String from) {
             return LocalDateTime.parse(from, DateTimeFormatter.ofPattern
@@ -112,7 +119,8 @@ class ArrayToPhotoConverter implements Converter<String[], Photo> {
         }
     };
 
-    private static final PhotoFormatter CITY_NAME_FORMATTER = new PhotoFormatter() {};
+    private static final PhotoFormatter CITY_NAME_FORMATTER = new PhotoFormatter() {
+    };
 
     public Photo convert(String[] values) {
         String fileNameValue = FILE_NAME_RETRIEVER.retrieve(values);
@@ -143,7 +151,8 @@ class NumberFormatter implements PhotoFormatter {
     private final Map<String, Long> photosPerCity;
     private final Map<String, AtomicInteger> counter;
 
-    public NumberFormatter(Map<String, Long> photosPerCity, Map<String, AtomicInteger> counter) {
+    public NumberFormatter(Map<String, Long> photosPerCity,
+                           Map<String, AtomicInteger> counter) {
         this.photosPerCity = photosPerCity;
         this.counter = counter;
     }
@@ -169,7 +178,7 @@ class Photo {
     private String number;
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {
@@ -177,7 +186,7 @@ class Photo {
     }
 
     public Extension getExtension() {
-        return extension;
+        return this.extension;
     }
 
     public void setExtension(Extension extension) {
@@ -185,7 +194,7 @@ class Photo {
     }
 
     public String getCity() {
-        return city;
+        return this.city;
     }
 
     public void setCity(String city) {
@@ -193,7 +202,7 @@ class Photo {
     }
 
     public LocalDateTime getDateTime() {
-        return dateTime;
+        return this.dateTime;
     }
 
     public void setDateTime(LocalDateTime dateTime) {
@@ -201,7 +210,7 @@ class Photo {
     }
 
     public String getNumber() {
-        return number;
+        return this.number;
     }
 
     public void setNumber(String number) {
@@ -213,26 +222,26 @@ class Photo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Photo photo = (Photo) o;
-        return Objects.equals(name, photo.name) &&
-                extension == photo.extension &&
-                Objects.equals(city, photo.city) &&
-                Objects.equals(dateTime, photo.dateTime) &&
-                Objects.equals(number, photo.number);
+        return Objects.equals(this.name, photo.name) &&
+                this.extension == photo.extension &&
+                Objects.equals(this.city, photo.city) &&
+                Objects.equals(this.dateTime, photo.dateTime) &&
+                Objects.equals(this.number, photo.number);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, extension, city, dateTime, number);
+        return Objects.hash(this.name, this.extension, this.city, this.dateTime, this.number);
     }
 
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("Photo{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", extension=").append(extension);
-        sb.append(", city='").append(city).append('\'');
-        sb.append(", dateTime=").append(dateTime);
-        sb.append(", number='").append(number).append('\'');
+        sb.append("name='").append(this.name).append('\'');
+        sb.append(", extension=").append(this.extension);
+        sb.append(", city='").append(this.city).append('\'');
+        sb.append(", dateTime=").append(this.dateTime);
+        sb.append(", number='").append(this.number).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -247,6 +256,10 @@ enum Extension {
 
     Extension(String value) {
         this.value = value;
+    }
+
+    public String getValue() {
+        return this.value;
     }
 
     public static Extension getValue(String value) {
