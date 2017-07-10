@@ -16,8 +16,6 @@ import java.util.stream.Stream;
  * Created by mvpopov on 7/9/17.
  */
 public class Solution {
-
-
     private static final String INPUT =
             "test1.jpg, Odessa, 2015-09-05 12:20:30"
                     + FileSplitter.LINE_SEPARATOR
@@ -44,7 +42,6 @@ public class Solution {
                     + "test12.png, Odessa, 2015-09-05 13:20:40"
                     + FileSplitter.LINE_SEPARATOR
                     + "test4.jpg, Donetsk, 2015-11-05 15:20:30";
-
 
     public static void main(String[] args) {
         System.out.print(new StringPhotoConverter().convert(INPUT));
